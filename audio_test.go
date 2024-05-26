@@ -24,6 +24,10 @@ func TestAudioWithFailingFormBuilder(t *testing.T) {
 		Temperature: 0.5,
 		Language:    "en",
 		Format:      AudioResponseFormatSRT,
+		TimestampGranularities: []TranscriptionTimestampGranularity{
+			TranscriptionTimestampGranularitySegment,
+			TranscriptionTimestampGranularityWord,
+		},
 	}
 
 	mockFailedErr := fmt.Errorf("mock form builder fail")
@@ -40,14 +44,14 @@ func TestAudioWithFailingFormBuilder(t *testing.T) {
 	}
 
 	var failForField string
-	mockBuilder.mockWriteField = func(fieldname, value string) error {
+	mockBuilder.mockWriteField = func(fieldname, _ string) error {
 		if fieldname == failForField {
 			return mockFailedErr
 		}
 		return nil
 	}
 
-	failOn := []string{"model", "prompt", "temperature", "language", "response_format"}
+	failOn := []string{"model", "prompt", "temperature", "language", "response_format", "timestamp_granularities[]"}
 	for _, failingField := range failOn {
 		failForField = failingField
 		mockFailedErr = fmt.Errorf("mock form builder fail on field %s", failingField)
